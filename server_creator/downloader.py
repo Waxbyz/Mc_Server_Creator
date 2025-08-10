@@ -1,6 +1,8 @@
 import subprocess, requests
+from bs4 import BeautifulSoup
 from abc import ABC, abstractmethod
-from utils import create_directory, delete_directory
+
+from utils import create_directory, delete_directory, neoforge_version_detection
 
 class Downloader(ABC):
     HEADERS = {'User-Agent': "MinecraftServerCreator/1.0 (https://github.com/Waxbyz/Mc_Server_Creator)"}
@@ -74,6 +76,7 @@ class SpigotDownloader(Downloader):
         self.save_dir = self.save_path / self.filename
 
     def download(self):
+        print(f"Downloading {self.name} from {self.download_url}")
         jar_response = requests.get(self.download_url, headers=self.HEADERS)
         jar_response.raise_for_status()
         with open(self.save_dir, "wb") as f:
@@ -95,8 +98,115 @@ class SpigotDownloader(Downloader):
         self.download()
         self.delete()
 
+class FabricDownloader(Downloader):
+    def __init__(self, version, name, direction):
+        super().__init__(version, name, direction)
+        self.base_url = "https://meta.fabricmc.net/v2/versions"
+        self.save_path = None
 
+    def get_latest_build(self):
+        builds_url = f"{self.base_url}/loader/{self.version}"
+        builds = requests.get(builds_url).json()[:1]
+        self.latest_build = builds[0]['loader']['version']
+
+        installer_versions = requests.get("https://meta.fabricmc.net/v2/versions/installer").json()
+        latest_installer_version = installer_versions[0]['version']
+
+        self.download_url = f"{self.base_url}/loader/{self.version}/{self.latest_build}/{latest_installer_version}/server/jar"
+        self.filename = f"fabric-server-mc.{self.version}-loader.{self.latest_build}-launcher.{latest_installer_version}.jar"
+
+    def prepare_save_path(self):
+        self.save_path = create_directory(f"{self.direction}/{self.name}")
+        self.save_dir = self.save_path / self.filename
+
+    def download(self):
+        print(f"Downloading {self.name} from {self.download_url}")
+        jar_response = requests.get(self.download_url, headers=self.HEADERS)
+        jar_response.raise_for_status()
+        with open(self.save_dir, "wb") as f:
+            f.write(jar_response.content)
+
+    def run(self):
+        self.get_latest_build()
+        self.prepare_save_path()
+        self.download()
+
+class ForgeDownloader(Downloader):
+    def __init__(self, version, name, direction):
+        super().__init__(version, name, direction)
+        self.base_url = "https://mc-versions-api.net/api/forge"
+        self.maven_url ="https://maven.minecraftforge.net/net/minecraftforge/forge"
+        self.save_path = None
+
+    def get_latest_build(self):
+        builds_url = f"{self.base_url}?version={self.version}"
+        builds = requests.get(builds_url).json()
+        self.latest_build = builds['result'][0]
+
+        self.download_url = f"{self.maven_url}/{self.version}-{self.latest_build}/forge-{self.version}-{self.latest_build}-installer.jar"
+        self.filename = f"forge-{self.version}-{self.latest_build}-installer.jar"
+
+    def prepare_save_path(self):
+        self.save_path = create_directory(f"{self.direction}/{self.name}")
+        self.save_dir = self.save_path / self.filename
+
+    def download(self):
+        jar_response = requests.get(self.download_url, headers=self.HEADERS)
+        jar_response.raise_for_status()
+        with open(self.save_dir, "wb") as f:
+            f.write(jar_response.content)
+
+    def run(self):
+        self.get_latest_build()
+        self.prepare_save_path()
+        self.download()
+
+class NeoForgeDownloader(Downloader):
+    def __init__(self, version, name, direction):
+        super().__init__(version, name, direction)
+        self.base_url = "https://maven.neoforged.net/releases/net/neoforged/neoforge"
+        self.save_path = None
+
+    def get_latest_build(self):
+        response = requests.get(self.base_url, headers=self.HEADERS)
+        response.raise_for_status()
+
+        data = BeautifulSoup(response.text, "lxml")
+        all_builds = []
+        try:
+            builds = data.find_all("li", class_="directory")
+            for i in builds:
+                build = i.find("a")
+                all_builds.append(build.text.replace("/", ""))
+        except AttributeError as e:
+            print(f"[!] No builds found {e}")
+
+        self.latest_build = neoforge_version_detection(version=self.version, builds_to_sort=all_builds)
+        self.filename = f"neoforge-{self.latest_build}-installer.jar"
+        self.download_url = f"{self.base_url}/{self.latest_build}/{self.filename}"
+
+    def prepare_save_path(self):
+        self.save_path = create_directory(f"{self.direction}/{self.name}")
+        self.save_dir = self.save_path / self.filename
+
+    def download(self):
+        print(f"Downloading {self.name} from {self.download_url}")
+        jar_response = requests.get(self.download_url, headers=self.HEADERS)
+        jar_response.raise_for_status()
+        with open(self.save_dir, "wb") as f:
+            f.write(jar_response.content)
+
+    def run(self):
+        self.get_latest_build()
+        self.prepare_save_path()
+        self.download()
 paper = PapermcDownloader(version="1.21.1", name="paper-1.21.1", direction="C:/Users/User/AppData/Roaming/.mc_server_creator/servers")
 paper.run()
 spigot = SpigotDownloader(version="1.21.1", name="spigot-1.21.1", direction="C:/Users/User/AppData/Roaming/.mc_server_creator/servers")
 spigot.run()
+fabric = FabricDownloader(version="1.21.1", name="fabric-1.21.1", direction="C:/Users/User/AppData/Roaming/.mc_server_creator/servers")
+fabric.run()
+forge = ForgeDownloader(version="1.21.1", name="forge-1.21.1", direction="C:/Users/User/AppData/Roaming/.mc_server_creator/servers")
+forge.run()
+neoforge = NeoForgeDownloader(version="1.21.1", name="neoforge-1.21.1", direction="C:/Users/User/AppData/Roaming/.mc_server_creator/servers")
+neoforge.run()
