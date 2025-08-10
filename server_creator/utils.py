@@ -29,3 +29,12 @@ def delete_directory(directory, *filenames_to_keep):
             shutil.rmtree(item, onerror=remove_readonly)
         else:
             item.unlink()
+
+def neoforge_version_detection(version: str,builds_to_sort: list ) -> str | None:
+    modded_builds = []
+    for v in builds_to_sort:
+        if "1." + v[:4] == version:
+            modded_builds.append(v.replace("-beta", ""))
+
+    int_modded_builds = [int(i[5:]) for i in modded_builds]
+    return f"{version[2:]}." + str(max(int_modded_builds))
