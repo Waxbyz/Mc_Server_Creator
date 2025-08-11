@@ -31,6 +31,34 @@ class Downloader(ABC):
     @abstractmethod
     def run(self):
         pass
+class VanillaDownloader(Downloader):
+    def __init__(self, version, name, directory):
+        super().__init__(version, name, directory)
+        self.manifest = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
+        self.base_url = "https://piston-data.mojang.com/v1/objects"
+        self.save_path = None
+
+    def get_latest_build(self):
+        builds = requests.get(f"{self.manifest}").json()
+        self.download_url = [v for v in builds['versions'] if v['id'] == self.version][0]['url']
+        self.filename = "server.jar"
+
+    def prepare_save_path(self):
+        self.save_path = create_directory(f"{self.directory}/{self.name}")
+        self.save_dir = self.save_path / self.filename
+
+    def download(self):
+        print(f"Downloading {self.name} from {self.download_url}")
+        jar_response = requests.get(self.download_url, headers=self.HEADERS)
+        jar_response.raise_for_status()
+        with open(self.save_dir, "wb") as f:
+            f.write(jar_response.content)
+        print(f"Saved {self.save_dir}")
+
+    def run(self):
+        self.get_latest_build()
+        self.prepare_save_path()
+        self.download()
 
 class PapermcDownloader(Downloader):
     def __init__(self, version, name, directory):
@@ -99,6 +127,36 @@ class SpigotDownloader(Downloader):
         self.download()
         self.delete()
 
+class PurpurmcDownloader(Downloader):
+    def __init__(self, version, name, directory):
+        super().__init__(version, name, directory)
+        self.base_url = "https://api.purpurmc.org/v2/purpur"
+        self.save_path = None
+
+    def get_latest_build(self):
+        builds_url = f"{self.base_url}/{self.version}"
+        builds = requests.get(builds_url, headers=self.HEADERS).json()['builds']
+        self.latest_build = builds['latest']
+        self.filename = f"purpur-{self.version}-{self.latest_build}.jar"
+        self.download_url = f"{self.base_url}/{self.version}/{self.latest_build}/download"
+
+    def prepare_save_path(self):
+        self.save_path = create_directory(f"{self.directory}/{self.name}")
+        self.save_dir = self.save_path / self.filename
+
+    def download(self):
+        print(f"Downloading {self.name} from {self.download_url}")
+        jar_response = requests.get(self.download_url, headers=self.HEADERS)
+        jar_response.raise_for_status()
+        with open(self.save_dir, "wb") as f:
+            f.write(jar_response.content)
+        print(f"Saved {self.save_dir}")
+
+    def run(self):
+        self.get_latest_build()
+        self.prepare_save_path()
+        self.download()
+
 class FabricDownloader(Downloader):
     def __init__(self, version, name, directory):
         super().__init__(version, name, directory)
@@ -152,6 +210,7 @@ class ForgeDownloader(Downloader):
         self.save_dir = self.save_path / self.filename
 
     def download(self):
+        print(f"Downloading {self.name} from {self.download_url}")
         jar_response = requests.get(self.download_url, headers=self.HEADERS)
         jar_response.raise_for_status()
         with open(self.save_dir, "wb") as f:
