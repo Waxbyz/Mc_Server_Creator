@@ -7,10 +7,10 @@ from utils import create_directory, delete_directory, neoforge_version_detection
 class Downloader(ABC):
     HEADERS = {'User-Agent': "MinecraftServerCreator/1.0 (https://github.com/Waxbyz/Mc_Server_Creator)"}
 
-    def __init__(self, version: str, name: str, direction: str):
+    def __init__(self, version: str, name: str, directory: str):
         self.version = version
         self.name = name
-        self.direction = direction
+        self.directory = directory
         self.latest_build = None
         self.filename = None
         self.save_dir = None
@@ -33,9 +33,10 @@ class Downloader(ABC):
         pass
 
 class PapermcDownloader(Downloader):
-    def __init__(self, version, name, direction):
-        super().__init__(version, name, direction)
+    def __init__(self, version, name, directory):
+        super().__init__(version, name, directory)
         self.base_url = "https://api.papermc.io/v2/projects/paper"
+        self.save_path = None
 
     def get_latest_build(self):
         versions_url = f"{self.base_url}/versions"
@@ -45,8 +46,8 @@ class PapermcDownloader(Downloader):
         self.download_url = f"{self.base_url}/versions/{self.version}/builds/{latest_build}/downloads/{self.filename}"
 
     def prepare_save_path(self):
-        save_path = create_directory(f"{self.direction}/{self.name}")
-        self.save_dir = save_path / self.filename
+        self.save_path = create_directory(f"{self.directory}/{self.name}")
+        self.save_dir = self.save_path / self.filename
 
     def download(self):
         print(f"Downloading {self.name} from {self.download_url}")
@@ -62,8 +63,8 @@ class PapermcDownloader(Downloader):
         self.download()
 
 class SpigotDownloader(Downloader):
-    def __init__(self, version, name, direction):
-        super().__init__(version, name, direction)
+    def __init__(self, version, name, directory):
+        super().__init__(version, name, directory)
         self.base_url = "https://hub.spigotmc.org/jenkins/job/BuildTools"
         self.save_path = None
 
@@ -72,7 +73,7 @@ class SpigotDownloader(Downloader):
         self.filename = "BuildTools.jar"
 
     def prepare_save_path(self):
-        self.save_path = create_directory(f"{self.direction}/{self.name}")
+        self.save_path = create_directory(f"{self.directory}/{self.name}")
         self.save_dir = self.save_path / self.filename
 
     def download(self):
@@ -99,8 +100,8 @@ class SpigotDownloader(Downloader):
         self.delete()
 
 class FabricDownloader(Downloader):
-    def __init__(self, version, name, direction):
-        super().__init__(version, name, direction)
+    def __init__(self, version, name, directory):
+        super().__init__(version, name, directory)
         self.base_url = "https://meta.fabricmc.net/v2/versions"
         self.save_path = None
 
@@ -116,7 +117,7 @@ class FabricDownloader(Downloader):
         self.filename = f"fabric-server-mc.{self.version}-loader.{self.latest_build}-launcher.{latest_installer_version}.jar"
 
     def prepare_save_path(self):
-        self.save_path = create_directory(f"{self.direction}/{self.name}")
+        self.save_path = create_directory(f"{self.directory}/{self.name}")
         self.save_dir = self.save_path / self.filename
 
     def download(self):
@@ -132,8 +133,8 @@ class FabricDownloader(Downloader):
         self.download()
 
 class ForgeDownloader(Downloader):
-    def __init__(self, version, name, direction):
-        super().__init__(version, name, direction)
+    def __init__(self, version, name, directory):
+        super().__init__(version, name, directory)
         self.base_url = "https://mc-versions-api.net/api/forge"
         self.maven_url ="https://maven.minecraftforge.net/net/minecraftforge/forge"
         self.save_path = None
@@ -147,7 +148,7 @@ class ForgeDownloader(Downloader):
         self.filename = f"forge-{self.version}-{self.latest_build}-installer.jar"
 
     def prepare_save_path(self):
-        self.save_path = create_directory(f"{self.direction}/{self.name}")
+        self.save_path = create_directory(f"{self.directory}/{self.name}")
         self.save_dir = self.save_path / self.filename
 
     def download(self):
@@ -162,8 +163,8 @@ class ForgeDownloader(Downloader):
         self.download()
 
 class NeoForgeDownloader(Downloader):
-    def __init__(self, version, name, direction):
-        super().__init__(version, name, direction)
+    def __init__(self, version, name, directory):
+        super().__init__(version, name, directory)
         self.base_url = "https://maven.neoforged.net/releases/net/neoforged/neoforge"
         self.save_path = None
 
@@ -186,7 +187,7 @@ class NeoForgeDownloader(Downloader):
         self.download_url = f"{self.base_url}/{self.latest_build}/{self.filename}"
 
     def prepare_save_path(self):
-        self.save_path = create_directory(f"{self.direction}/{self.name}")
+        self.save_path = create_directory(f"{self.directory}/{self.name}")
         self.save_dir = self.save_path / self.filename
 
     def download(self):
@@ -200,13 +201,3 @@ class NeoForgeDownloader(Downloader):
         self.get_latest_build()
         self.prepare_save_path()
         self.download()
-paper = PapermcDownloader(version="1.21.1", name="paper-1.21.1", direction="C:/Users/User/AppData/Roaming/.mc_server_creator/servers")
-paper.run()
-spigot = SpigotDownloader(version="1.21.1", name="spigot-1.21.1", direction="C:/Users/User/AppData/Roaming/.mc_server_creator/servers")
-spigot.run()
-fabric = FabricDownloader(version="1.21.1", name="fabric-1.21.1", direction="C:/Users/User/AppData/Roaming/.mc_server_creator/servers")
-fabric.run()
-forge = ForgeDownloader(version="1.21.1", name="forge-1.21.1", direction="C:/Users/User/AppData/Roaming/.mc_server_creator/servers")
-forge.run()
-neoforge = NeoForgeDownloader(version="1.21.1", name="neoforge-1.21.1", direction="C:/Users/User/AppData/Roaming/.mc_server_creator/servers")
-neoforge.run()
