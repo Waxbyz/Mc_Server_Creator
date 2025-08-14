@@ -1,4 +1,4 @@
-import subprocess, requests
+import requests
 from bs4 import *
 from abc import ABC, abstractmethod
 
@@ -33,6 +33,12 @@ class PapermcVersionsGetter(VersionsGetter):
         response = requests.get(self.base_url, headers=VanillaVersionsGetter.HEADERS)
         response.raise_for_status()
         self.versions_list = response.json()['versions']
+        for i in self.versions_list:
+            if 'pre' in i:
+                self.versions_list.remove(i)
+            else:
+                continue
+
         return self.versions_list
 
 class PurpurmcVersionsGetter(VersionsGetter):
@@ -43,7 +49,8 @@ class PurpurmcVersionsGetter(VersionsGetter):
     def get_version(self) -> list:
         response = requests.get(self.base_url, headers=VanillaVersionsGetter.HEADERS)
         response.raise_for_status()
-        self.versions_list = response.json()['versions']
+        self.versions_list = sorted(response.json()['versions'], reverse=True)
+
         return self.versions_list
 
 class SpigotVersionsGetter(VersionsGetter):
@@ -66,6 +73,11 @@ class SpigotVersionsGetter(VersionsGetter):
                     self.versions_list.append(version)
         except AttributeError as e:
             print(f"[!] No versions found: {e}")
+
+        def version_key(v):
+            return [int(part) for part in v.split(".")]
+
+        self.versions_list = sorted(self.versions_list, key=version_key, reverse=True)
 
         return self.versions_list
 
