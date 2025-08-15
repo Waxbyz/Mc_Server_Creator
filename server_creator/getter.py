@@ -22,9 +22,10 @@ class VanillaVersionsGetter(VersionsGetter):
         response = requests.get(self.base_url, headers=VanillaVersionsGetter.HEADERS)
         response.raise_for_status()
         self.versions_list = response.json()['result']
+
         return self.versions_list
 
-class PapermcVersionsGetter(VersionsGetter):
+class PaperVersionsGetter(VersionsGetter):
     def __init__(self, versions_list: list) -> None:
         super().__init__(versions_list)
         self.base_url = "https://api.papermc.io/v2/projects/paper"
@@ -41,7 +42,7 @@ class PapermcVersionsGetter(VersionsGetter):
 
         return self.versions_list
 
-class PurpurmcVersionsGetter(VersionsGetter):
+class PurpurVersionsGetter(VersionsGetter):
     def __init__(self, versions_list: list) -> None:
         super().__init__(versions_list)
         self.base_url = "https://api.purpurmc.org/v2/purpur"
@@ -145,3 +146,14 @@ class NeoForgeVersionsGetter(VersionsGetter):
         self.versions_list = list(reversed(sorted(self.new_versions_list, key=version_key)))
 
         return self.versions_list
+
+def get_loaders(loaders_list: list) -> list:
+    loaders_list.append("Vanilla")
+    loaders_list.append("Paper")
+    loaders_list.append("Purpur")
+    loaders_list.append("Spigot")
+    loaders_list.append("Fabric")
+    loaders_list.append("Forge")
+    loaders_list.append("NeoForge")
+
+    return loaders_list

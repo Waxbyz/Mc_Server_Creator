@@ -26,6 +26,13 @@ class Ui_CreateServerDialog(object):
             CreateServerDialog.setObjectName(u"CreateServerDialog")
         CreateServerDialog.resize(462, 520)
         CreateServerDialog.setStyleSheet(u"background-color: rgb(44, 44, 44);")
+
+        font_id = QFontDatabase.addApplicationFont("../assets/fonts/Roboto-Medium.ttf")
+        if font_id != -1:
+            roboto_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+        else:
+            raise RuntimeError("Could not find Roboto font family.")
+
         self.ok_btn = QPushButton(CreateServerDialog)
         self.ok_btn.setObjectName(u"ok_btn")
         self.ok_btn.setGeometry(QRect(20, 420, 421, 71))
@@ -67,7 +74,7 @@ class Ui_CreateServerDialog(object):
         self.name_btn.setObjectName(u"name_btn")
         self.name_btn.setGeometry(QRect(10, 60, 181, 31))
         font2 = QFont()
-        font2.setFamilies([u"Roboto Medium"])
+        font2.setFamilies([roboto_family])
         font2.setPointSize(11)
         font2.setBold(False)
         self.name_btn.setFont(font2)
@@ -92,7 +99,7 @@ class Ui_CreateServerDialog(object):
         self.loader_btn.setObjectName(u"loader_btn")
         self.loader_btn.setGeometry(QRect(10, 80, 181, 31))
         font3 = QFont()
-        font3.setFamilies([u"Roboto Medium"])
+        font3.setFamilies([roboto_family])
         font3.setPointSize(11)
         self.loader_btn.setFont(font3)
         self.loader_btn.setStyleSheet(u"QComboBox {\n"
@@ -101,6 +108,7 @@ class Ui_CreateServerDialog(object):
 "    border: 2px solid rgb(82, 165, 53);\n"
 "    border-radius: 4px;\n"
 "    padding-right: 25px;\n"
+"    selection-background-color: rgb(82, 165, 53);\n"
 "}\n"
 "\n"
 "QComboBox::drop-down {\n"
@@ -109,7 +117,6 @@ class Ui_CreateServerDialog(object):
 "    width: 20px;\n"
 "    background-color: rgb(44, 44, 44);\n"
 "    border-left: 2px solid rgb(82, 165, 53);\n"
-"\n"
 "    border-top-right-radius: 4px;\n"
 "    border-bottom-right-radius: 4px;\n"
 "}\n"
@@ -121,32 +128,40 @@ class Ui_CreateServerDialog(object):
 "}\n"
 "\n"
 "QComboBox QAbstractItemView {\n"
-"    background-color: rgb(30, 30, 30);\n"
+"    background-color: rgb(38, 38, 38);\n"
 "    color: white;\n"
 "    border: 1px solid rgb(82, 165, 53);\n"
-"    outline: 0;\n"
-"    show-decoration-selected: 0;\n"
-"    max-height: 100px;\n"
+"    outline: none;\n"
+"    show-decoration-selected: 1;\n"
+"    padding: 0;\n"
+"    spacing: 0;\n"
 "}\n"
 "\n"
 "QComboBox QAbstractItemView::item {\n"
-"    padding: 4px 8px;\n"
+"   "
+                        " padding: 6px 10px;\n"
 "    background-color: transparent;\n"
 "    color: white;\n"
+"    border: none;\n"
 "}\n"
 "\n"
-""
-                        "QComboBox QAbstractItemView::item:hover {\n"
-"    background-color: rgba(82, 165, 53, 80);\n"
-"    border-left: 3px solid rgb(82, 165, 53);\n"
+"QComboBox QAbstractItemView::item:hover {\n"
+"    background-color: rgba(82, 165, 53);\n"
 "}\n"
 "\n"
 "QComboBox QAbstractItemView::item:selected {\n"
 "    background-color: rgb(82, 165, 53);\n"
 "    color: black;\n"
+"    border-radius: 6px;\n"
+                                      
 "}\n"
 "\n"
-"/* === ScrollBar === */\n"
+"QComboBox QAbstractItemView::item:selected:hover {\n"
+"    background-color: rgb(82, 165, 53);\n"
+"    color: black;\n"
+"    border-left: 3px solid rgb(82, 165, 53);\n"
+"}\n"
+"\n"
 "QComboBox QScrollBar:vertical {\n"
 "    background: rgb(44, 44, 44);\n"
 "    width: 12px;\n"
@@ -162,18 +177,16 @@ class Ui_CreateServerDialog(object):
 "}\n"
 "\n"
 "QComboBox QScrollBar::handle:vertical:hover {\n"
-"    background: rgb(100, 200, 70);\n"
+""
+                        "    background: rgb(82, 165, 53);\n"
 "}\n"
 "\n"
 "QComboBox QScrollBar::add-line:vertical,\n"
-"QComboBox QScrollBar::sub-line:vertical {\n"
-"    background: none;\n"
-"    height: 0px;\n"
-"}\n"
-"\n"
+"QComboBox QScrollBar::sub-line:vertical,\n"
 "QComboBox QScrollBar::add-page:vertical,\n"
 "QComboBox QScrollBar::sub-page:vertical {\n"
 "    background: none;\n"
+"    height: 0px;\n"
 "}")
         self.loader_lbl = QLabel(self.frame_2)
         self.loader_lbl.setObjectName(u"loader_lbl")
@@ -201,6 +214,7 @@ class Ui_CreateServerDialog(object):
 "    border: 2px solid rgb(82, 165, 53);\n"
 "    border-radius: 4px;\n"
 "    padding-right: 25px;\n"
+"    selection-background-color: rgb(82, 165, 53);\n"
 "}\n"
 "\n"
 "QComboBox::drop-down {\n"
@@ -209,7 +223,6 @@ class Ui_CreateServerDialog(object):
 "    width: 20px;\n"
 "    background-color: rgb(44, 44, 44);\n"
 "    border-left: 2px solid rgb(82, 165, 53);\n"
-"\n"
 "    border-top-right-radius: 4px;\n"
 "    border-bottom-right-radius: 4px;\n"
 "}\n"
@@ -221,31 +234,39 @@ class Ui_CreateServerDialog(object):
 "}\n"
 "\n"
 "QComboBox QAbstractItemView {\n"
-"    background-color: rgb(30, 30, 30);\n"
+"    background-color: rgb(38, 38, 38);\n"
 "    color: white;\n"
 "    border: 1px solid rgb(82, 165, 53);\n"
-"    outline: 0;\n"
-"    show-decoration-selected: 0;\n"
+"    outline: none;\n"
+"    show-decoration-selected: 1;\n"
+"    padding: 0;\n"
+"    spacing: 0;\n"
 "}\n"
 "\n"
 "QComboBox QAbstractItemView::item {\n"
-"    padding: 4px 8px;\n"
+"   "
+                        " padding: 6px 10px;\n"
 "    background-color: transparent;\n"
 "    color: white;\n"
+"    border: none;\n"
 "}\n"
 "\n"
-""
-                        "QComboBox QAbstractItemView::item:hover {\n"
-"    background-color: rgba(82, 165, 53, 80);\n"
-"    border-left: 3px solid rgb(82, 165, 53);\n"
+"QComboBox QAbstractItemView::item:hover {\n"
+"    background-color: rgba(82, 165, 53);\n"
 "}\n"
 "\n"
 "QComboBox QAbstractItemView::item:selected {\n"
 "    background-color: rgb(82, 165, 53);\n"
 "    color: black;\n"
+"    border-radius: 6px;\n"
 "}\n"
 "\n"
-"/* === ScrollBar === */\n"
+"QComboBox QAbstractItemView::item:selected:hover {\n"
+"    background-color: rgb(82, 165, 53);\n"
+"    color: black;\n"
+"    border-left: 3px solid rgb(82, 165, 53);\n"
+"}\n"
+"\n"
 "QComboBox QScrollBar:vertical {\n"
 "    background: rgb(44, 44, 44);\n"
 "    width: 12px;\n"
@@ -261,18 +282,16 @@ class Ui_CreateServerDialog(object):
 "}\n"
 "\n"
 "QComboBox QScrollBar::handle:vertical:hover {\n"
-"    background: rgb(100, 200, 70);\n"
+""
+                        "    background: rgb(82, 165, 53);\n"
 "}\n"
 "\n"
 "QComboBox QScrollBar::add-line:vertical,\n"
-"QComboBox QScrollBar::sub-line:vertical {\n"
-"    background: none;\n"
-"    height: 0px;\n"
-"}\n"
-"\n"
+"QComboBox QScrollBar::sub-line:vertical,\n"
 "QComboBox QScrollBar::add-page:vertical,\n"
 "QComboBox QScrollBar::sub-page:vertical {\n"
 "    background: none;\n"
+"    height: 0px;\n"
 "}")
         self.frame_3 = QFrame(CreateServerDialog)
         self.frame_3.setObjectName(u"frame_3")
