@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from pathlib import Path
 
 from PySide6 import QtWidgets
 ################################################################################
@@ -20,6 +21,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
                                QLabel, QLineEdit, QProgressBar, QPushButton,
                                QSizePolicy, QWidget, QHBoxLayout, QFileDialog, QVBoxLayout)
+
 from assets.res_rc import *
 
 class FileDropButton(QtWidgets.QPushButton):
@@ -30,6 +32,8 @@ class FileDropButton(QtWidgets.QPushButton):
         icon.addFile(u":/icon/icons/image_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.setIcon(icon)
         self.setIconSize(QSize(50, 50))
+        self.filename = ""
+        self.filename1 = ""
 
         self.setStyleSheet("""
             QPushButton {
@@ -53,6 +57,7 @@ class FileDropButton(QtWidgets.QPushButton):
     def choose_file(self):
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', '', 'Image Files (*.jpg *.jpeg *.png)')
         if file_path:
+            self.save_image(file_path)
             icon2 = QIcon()
             icon2.addFile(u":/icon/icons/check_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg", QSize(), QIcon.Mode.Normal,
                           QIcon.State.Off)
@@ -78,6 +83,7 @@ class FileDropButton(QtWidgets.QPushButton):
             file_path = url.toLocalFile()
             ext = os.path.splitext(file_path)[1].lower()
             if ext in ['.png', '.jpg', '.jpeg']:
+                self.save_image(file_path)
                 icon2 = QIcon()
                 icon2.addFile(u":/icon/icons/check_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg", QSize(), QIcon.Mode.Normal,
                               QIcon.State.Off)
@@ -90,6 +96,16 @@ class FileDropButton(QtWidgets.QPushButton):
                           QIcon.State.Off)
             self.setIcon(icon3)
             self.setIconSize(QSize(50, 50))
+
+    def save_image(self, file_path: str) -> None:
+        target_dir = Path(os.getenv('APPDATA')) / ".mc_server_creator" / "images"
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        source_path = Path(file_path)
+        target_path = target_dir / source_path.name
+
+        target_path.write_bytes(source_path.read_bytes())
+        print(f"Saved to {target_path}")
 
 class Ui_CreateServerDialog(object):
     def setupUi(self, CreateServerDialog):
