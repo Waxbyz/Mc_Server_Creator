@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import os
 
+from PySide6 import QtWidgets
 ################################################################################
 ## Form generated from reading UI file 'create_server_dialog.ui'
 ##
@@ -12,13 +14,82 @@ from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
     QSize, QTime, QUrl, Qt)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
+                           QFont, QFontDatabase, QGradient, QIcon,
+                           QImage, QKeySequence, QLinearGradient, QPainter,
+                           QPalette, QPixmap, QRadialGradient, QTransform, QDragEnterEvent, QDropEvent)
 from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
-    QLabel, QLineEdit, QProgressBar, QPushButton,
-    QSizePolicy, QWidget)
+                               QLabel, QLineEdit, QProgressBar, QPushButton,
+                               QSizePolicy, QWidget, QHBoxLayout, QFileDialog, QVBoxLayout)
 from assets.res_rc import *
+
+class FileDropButton(QtWidgets.QPushButton):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAcceptDrops(True)
+        icon = QIcon()
+        icon.addFile(u":/icon/icons/image_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.setIcon(icon)
+        self.setIconSize(QSize(50, 50))
+
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: rgb(44, 44, 44);
+                border: 2px solid rgb(82, 165, 53);
+                color: white;
+                font-size: 14px;
+                border-radius: 10px;
+                padding: 12px;
+            }
+            QPushButton:hover {
+                background-color: rgb(36, 36, 36);
+            }
+            QPushButton:pressed {
+                background-color: rgb(25, 25, 25);
+            }
+        """)
+
+        self.clicked.connect(self.choose_file)
+
+    def choose_file(self):
+        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', '', 'Image Files (*.jpg *.jpeg *.png)')
+        if file_path:
+            icon2 = QIcon()
+            icon2.addFile(u":/icon/icons/check_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg", QSize(), QIcon.Mode.Normal,
+                          QIcon.State.Off)
+            self.setIcon(icon2)
+            self.setIconSize(QSize(50, 50))
+            print(f"file_path is {file_path}")
+        else:
+            icon3 = QIcon()
+            icon3.addFile(u":/icon/icons/close_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg", QSize(), QIcon.Mode.Normal,
+                          QIcon.State.Off)
+            self.setIcon(icon3)
+            self.setIconSize(QSize(50, 50))
+
+    def dragEnterEvent(self, event: QDragEnterEvent):
+        for url in event.mimeData().urls():
+            if os.path.splitext(url.toLocalFile())[1].lower() in ['.png', '.jpg', '.jpeg']:
+                event.acceptProposedAction()
+                return
+        event.ignore()
+
+    def dropEvent(self, event: QDropEvent):
+        for url in event.mimeData().urls():
+            file_path = url.toLocalFile()
+            ext = os.path.splitext(file_path)[1].lower()
+            if ext in ['.png', '.jpg', '.jpeg']:
+                icon2 = QIcon()
+                icon2.addFile(u":/icon/icons/check_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg", QSize(), QIcon.Mode.Normal,
+                              QIcon.State.Off)
+                self.setIcon(icon2)
+                self.setIconSize(QSize(50, 50))
+                print("image_accepted:", file_path)
+                return
+            icon3 = QIcon()
+            icon3.addFile(u":/icon/icons/close_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg", QSize(), QIcon.Mode.Normal,
+                          QIcon.State.Off)
+            self.setIcon(icon3)
+            self.setIconSize(QSize(50, 50))
 
 class Ui_CreateServerDialog(object):
     def setupUi(self, CreateServerDialog):
@@ -303,29 +374,7 @@ class Ui_CreateServerDialog(object):
 "\n"
 "border-top-left-radius: 0px;\n"
 "border-bottom-left-radius: 9px;")
-        self.frame_3.setFrameShape(QFrame.StyledPanel)
-        self.frame_3.setFrameShadow(QFrame.Raised)
-        self.choose_file_lbl = QLabel(self.frame_3)
-        self.choose_file_lbl.setObjectName(u"choose_file_lbl")
-        self.choose_file_lbl.setGeometry(QRect(10, 0, 171, 41))
-        self.choose_file_lbl.setFont(font4)
-        self.choose_file_lbl.setStyleSheet(u"background: None;\n"
-"color: rgb(255, 255, 255)")
-        self.line = QFrame(self.frame_3)
-        self.line.setObjectName(u"line")
-        self.line.setGeometry(QRect(210, 10, 2, 141))
-        self.line.setStyleSheet(u"background-color: rgb(128, 128, 128);\n"
-"min-width: 2px;\n"
-"max-width: 2px;\n"
-"border-radius: 1px;")
-        self.line.setFrameShape(QFrame.Shape.VLine)
-        self.line.setFrameShadow(QFrame.Shadow.Sunken)
-        self.drag_and_drop_lbl = QLabel(self.frame_3)
-        self.drag_and_drop_lbl.setObjectName(u"drag_and_drop_lbl")
-        self.drag_and_drop_lbl.setGeometry(QRect(230, 0, 171, 41))
-        self.drag_and_drop_lbl.setFont(font4)
-        self.drag_and_drop_lbl.setStyleSheet(u"background: None;\n"
-"color: rgb(255, 255, 255)")
+
         self.frame_4 = QFrame(CreateServerDialog)
         self.frame_4.setObjectName(u"frame_4")
         self.frame_4.setGeometry(QRect(20, 160, 201, 81))
@@ -380,8 +429,6 @@ class Ui_CreateServerDialog(object):
         self.core_lbl.setText(QCoreApplication.translate("CreateServerDialog", u"Core:", None))
         self.loader_lbl.setText(QCoreApplication.translate("CreateServerDialog", u"Loader:", None))
         self.version_lbl.setText(QCoreApplication.translate("CreateServerDialog", u"Version:", None))
-        self.choose_file_lbl.setText(QCoreApplication.translate("CreateServerDialog", u"Choose file:", None))
-        self.drag_and_drop_lbl.setText(QCoreApplication.translate("CreateServerDialog", u"Drag and Drop:", None))
         self.Image_lbl.setText(QCoreApplication.translate("CreateServerDialog", u"Image:", None))
         self.progressBar.setFormat("")
     # retranslateUi

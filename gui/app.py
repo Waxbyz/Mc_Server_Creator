@@ -1,11 +1,12 @@
 import sys
-from unittest import case
 
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
+from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QMainWindow, QComboBox
 
 from create_server_dialog import Ui_CreateServerDialog
+from gui.create_server_dialog import FileDropButton
 from mc_server_creator import Ui_ServerCreator
 from server_creator.getter import *
 
@@ -15,17 +16,21 @@ class CreateServerDialog(QtWidgets.QDialog, Ui_CreateServerDialog):
         self.setupUi(self)
         self.setWindowIcon(QIcon('../assets/logo/msc_logo.png'))
         self.setFixedSize(self.size())
-        self.loader_btn.setMaxVisibleItems(6)
+        self.loader_btn.setMaxVisibleItems(7)
         self.version_btn.setMaxVisibleItems(6)
+
+        self.file_btn = FileDropButton(self.frame_3)
+        self.file_btn.setGeometry(QtCore.QRect(20, 20, 381, 121))
+
+        QTimer.singleShot(100, self.load_loaders)
+
         self.loader_btn.currentIndexChanged.connect(self.load_versions)
 
-        self.load_versions()
-        self.load_loaders()
+        QTimer.singleShot(0, lambda: self.load_versions())
 
     def load_loaders(self):
         try:
             loaders = get_loaders([])
-
             self.loader_btn.clear()
             self.loader_btn.addItems(loaders)
             self.version_btn.setInsertPolicy(QComboBox.NoInsert)
@@ -35,7 +40,12 @@ class CreateServerDialog(QtWidgets.QDialog, Ui_CreateServerDialog):
             self.version_btn.addItem("Error Loading")
 
     def load_versions(self):
+        self.version_btn.clear()
+        self.version_btn.addItem("Loading...")
+        self.version_btn.repaint()
+
         text = self.loader_btn.currentText()
+
         match text:
             case "Vanilla": getter = VanillaVersionsGetter([])
             case "Paper": getter = PaperVersionsGetter([])
@@ -46,6 +56,7 @@ class CreateServerDialog(QtWidgets.QDialog, Ui_CreateServerDialog):
             case "NeoForge": getter = NeoForgeVersionsGetter([])
             case _:
                 return
+
         try:
             versions = getter.get_version()
 
@@ -57,6 +68,7 @@ class CreateServerDialog(QtWidgets.QDialog, Ui_CreateServerDialog):
             self.version_btn.clear()
             self.version_btn.addItems(versions)
             self.version_btn.setInsertPolicy(QComboBox.NoInsert)
+
         except Exception as e:
             print(f"Error when loading versions: {e}")
             self.version_btn.addItem("Error Loading")
